@@ -38,7 +38,8 @@ offset_motor = 0.05;
 AD      = 1100;                                 % Altitude Densidade
 ro      = 1.2259*exp(-284.2*AD/2394432);        % Densidade do Ar
 declive = 0;                                    % Declive da pista (+ uphill, - downhill)
-váriavel_aleatória_pra_entender_git = 25;
+variavel_aleatario_pra_entender_git = 25;
+rola = 300; % rola
 
 % Fatores de correção
 CD_factor     = 1.0;
