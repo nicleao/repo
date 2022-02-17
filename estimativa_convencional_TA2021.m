@@ -4,12 +4,12 @@
 
 % Vetores que funcionam, MTOW e CP
 x = [ 0.7950 0.5612 0.4999 0.6000 0.0020 2.1302 2.2193 5.4900 0.2928 1.0000 2.8766 ]; % Melhor vetor (vetor final, antes de chegar nesse debaixo)
-% x = [0.88 0.5612 0.4999 0.6000 0.0020 2.1302 2.2193 5.4900 0.26 0.7 5.5]; % Vetor final do avi„o do TA
+% x = [0.88 0.5612 0.4999 0.6000 0.0020 2.1302 2.2193 5.4900 0.26 0.7 5.5]; % Vetor final do avi√£o do TA
 
 %function [result] = estimativa_convencional_TA2021(x,~)
 try
-% x(1) = X_emp [m] Dist‚ncia entre bordo de ataque da asa e bordo de ataque das empenagens (raiz)
-% x(2) = SeÁ„o reto-trapezoidal [% da semi envergadura]
+% x(1) = X_emp [m] Dist√¢ncia entre bordo de ataque da asa e bordo de ataque das empenagens (raiz)
+% x(2) = Se√ß√£o reto-trapezoidal [% da semi envergadura]
 % x(3) = Corda da raiz [m]
 % x(4) = Afilamento (corda da ponta / corda da raiz)
 % x(5) = Offset da ponta da asa [m]
@@ -18,7 +18,7 @@ try
 % x(8) = Perfil da ponta
 % x(9) = Corda da EH [m]
 % x(10) = Envergadura da EH [% da envergadura da asa]
-% x(11) = ¬ngulo de incidÍncia na corrida da asa [∞]
+% x(11) = √Çngulo de incid√™ncia na corrida da asa [¬∞]
 
 xerro = x;
 warning off;
@@ -30,7 +30,7 @@ dbstop if error
 save = [x(1) x(2) x(3) x(4) x(5) x(6) x(7) x(8) x(9) x(10) x(11)];
 fprintf('_________________________________________________________________\n')
 
-%% Vari·veis n„o declaradas
+%% Vari√°veis n√£o declaradas
 d_fixa_motor = 0.05;
 offset_motor = 0.05;
 
@@ -38,33 +38,34 @@ offset_motor = 0.05;
 AD      = 1100;                                 % Altitude Densidade
 ro      = 1.2259*exp(-284.2*AD/2394432);        % Densidade do Ar
 declive = 0;                                    % Declive da pista (+ uphill, - downhill)
+v√°riavel_aleat√≥ria_pra_entender_git = 25;
 
-% Fatores de correÁ„o
+% Fatores de corre√ß√£o
 CD_factor     = 1.0;
 Thrust_factor = 1;
 fmult         = 1;
 
-%% P‚rametros da otimizaÁ„o - Asa
+%% P√¢rametros da otimiza√ß√£o - Asa
 
 b    = 2;                 % Envergadura da asa (m)
-iw   = x(11);             % ¬ngulo de incidÍncia na corrida da asa [∞]
-died = 0;                 % Diedro [∞]
-X    = (b/2)*x(2);        % TransiÁ„o reto-trapezoidal
+iw   = x(11);             % √Çngulo de incid√™ncia na corrida da asa [¬∞]
+died = 0;                 % Diedro [¬∞]
+X    = (b/2)*x(2);        % Transi√ß√£o reto-trapezoidal
 
 % Cordas na envergadura
 chord(1)    = x(3);     cr = chord(1);        % Corda da raiz
-chord(2)    = x(3);     cm = chord(2);        % Corda intermedi·ria
+chord(2)    = x(3);     cm = chord(2);        % Corda intermedi√°ria
 chord(3)    = cr*x(4);  ct = chord(3);        % Corda da ponta
 chord       = [cr cm ct];                    % Vetor corda na envergadura da asa
 
-% PosiÁıes das cordas na envergadura 
-posb(1)   = 0;                                % InÌcio da asa
-posb(2)   = X;                                % SeÁ„o do meio
+% Posi√ß√µes das cordas na envergadura 
+posb(1)   = 0;                                % In√≠cio da asa
+posb(2)   = X;                                % Se√ß√£o do meio
 posb(3)   = b/2;                              % Final da asa
-posb      = [posb(1) posb(2) posb(3)];        % Vetor de posiÁıes das cordas na envergadura da asa
+posb      = [posb(1) posb(2) posb(3)];        % Vetor de posi√ß√µes das cordas na envergadura da asa
 
 % Offset das cordas
-offset1   = 0;                      % Offset da seÁ„o do meio da asa [m]
+offset1   = 0;                      % Offset da se√ß√£o do meio da asa [m]
 offset2   = x(5);                   % Offset da ponta da asa [m]
 offset = [0 offset1 offset2];       % Vetor offset na asa
 
@@ -73,86 +74,86 @@ perfilr = round(x(6));   % Perfil da raiz da asa
 perfilm = round(x(7));   % Perfil do meio da asa
 perfilp = round(x(8));   % Perfil da ponta da asa
 
-h_asa       = b/10;    % Altura da asa em relaÁ„o ao solo (intradorso da raiz ate o solo)
+h_asa       = b/10;    % Altura da asa em rela√ß√£o ao solo (intradorso da raiz ate o solo)
 H_CG        = 0;       % Altura CG a partir da altura da asa
-% align_perf  = 0;     % Tipo de alinhamento dos perfis da raiz e ponta (1 se for pelo extradorso, 0 se for pela linha mÈdia)
+% align_perf  = 0;     % Tipo de alinhamento dos perfis da raiz e ponta (1 se for pelo extradorso, 0 se for pela linha m√©dia)
 align_asa   = 0;       % Tipo de alinhamento da asa (1 se for pelo BF, 0 se for pelo BA)
 % thw         = 0.;    % Thickness do perfil
 
-%% C·lculos iniciais da ASA
+%% C√°lculos iniciais da ASA
 
-y1 =(0:0.01:1)*b/2;                                % Malha para calcular a ·rea da asa 
-[y1,c1,x1] = Corda(chord,posb,X,b,offset);         % FunÁ„o para calcular a distribuiÁ„o de corda e offset na envergadura da asa
+y1 =(0:0.01:1)*b/2;                                % Malha para calcular a √°rea da asa 
+[y1,c1,x1] = Corda(chord,posb,X,b,offset);         % Fun√ß√£o para calcular a distribui√ß√£o de corda e offset na envergadura da asa
 if isnan(c1)                                       % Teste da malha de cordas  
     disp('ops')
     PrintParada(save,1,NaN,NaN,NaN,NaN,NaN,NaN,NaN);
     return
 end
 
-S          = 2*trapz(y1,c1);              % C·lculo da ·rea da asa usando o mÈtodo do trapÈzio
-AR         = 2*b^2/S;                     % Raz„o de aspecto
-mac        = 2/S*trapz(y1,c1.^2);         % C·lculo da MAC
-Ymac       = 2/S*trapz(y1,c1.*y1);        % PosiÁ„o na envergadura da MAC
-x1_4       = x1 + (c1/4);                 % PosiÁ„o do CA de cada corda
-Xmac       = 2/S*trapz(y1,c1.*x1_4);      % C·lculo do offset do CA da MAC
+S          = 2*trapz(y1,c1);              % C√°lculo da √°rea da asa usando o m√©todo do trap√©zio
+AR         = 2*b^2/S;                     % Raz√£o de aspecto
+mac        = 2/S*trapz(y1,c1.^2);         % C√°lculo da MAC
+Ymac       = 2/S*trapz(y1,c1.*y1);        % Posi√ß√£o na envergadura da MAC
+x1_4       = x1 + (c1/4);                 % Posi√ß√£o do CA de cada corda
+Xmac       = 2/S*trapz(y1,c1.*x1_4);      % C√°lculo do offset do CA da MAC
 offset_mac = Xmac - mac/4;                % Offset da MAC
-lambda1    = cm/cr;                       % Afilamento da raÌz da asa
+lambda1    = cm/cr;                       % Afilamento da ra√≠z da asa
 lambda2    = ct/cm;                       % Afilamento da ponta da asa
 lambda     = ct/cr;                       % Afilmento total da asa
 
-%% Par‚metros de OtimizaÁ„o - EH 
+%% Par√¢metros de Otimiza√ß√£o - EH 
 
 beh       = x(10);                      % Envergadura da EH [m]
 creh      = x(9);                       % Corda da raiz da EH
 cteh      = creh;                       % Corda da ponta da EH
 chordeh   = [creh cteh];                % Vetor corda EH
-posbeh    = [0 beh];                    % Vetor posiÁ„o das cordas na EH
+posbeh    = [0 beh];                    % Vetor posi√ß√£o das cordas na EH
 offseteh  = 0;                          % Offset da ponta da EH
-x_emp     = x(1);                       % Dist‚ncia entre bordo de ataque da asa e bordo de ataque da EH (raiz)
+x_emp     = x(1);                       % Dist√¢ncia entre bordo de ataque da asa e bordo de ataque da EH (raiz)
 
-Ptdp = 0.3; % Chute de posiÁ„o do TDP (% da corda da raiz) [melhor errar pra menos que pra mais]
+Ptdp = 0.3; % Chute de posi√ß√£o do TDP (% da corda da raiz) [melhor errar pra menos que pra mais]
 
 if tand(10)*(x_emp-cr) > (tand(20-iw))*(creh+x_emp-Ptdp*cr) - h_asa
-    h_emp = tand(10)*(x_emp-cr); % Altura entra asa e EH (Bordo de ataque da asa atÈ bordo de ataque da EH)
+    h_emp = tand(10)*(x_emp-cr); % Altura entra asa e EH (Bordo de ataque da asa at√© bordo de ataque da EH)
 else
     h_emp = (tand(20-iw))*(creh+x_emp-Ptdp*cr) - h_asa;
 end
 
-ih        = 0;                          % IncidÍncia da EH
+ih        = 0;                          % Incid√™ncia da EH
 perfilh   = 'Carbonarainvertido.dat';   % Perfil da EH    
-Xeh       = 0;                          % TransiÁ„o
+Xeh       = 0;                          % Transi√ß√£o
 
-%% C·lculos iniciais da EH
+%% C√°lculos iniciais da EH
 
-y1eh = (0:0.01:1)*beh/2;                                                                % Malha para calcular a ·rea da eh
+y1eh = (0:0.01:1)*beh/2;                                                                % Malha para calcular a √°rea da eh
 offseteh_so_para_funcao_de_corda = [0 offseteh];
-[y1eh,c1eh,x1eh] = Corda(chordeh,posbeh,Xeh,beh,offseteh_so_para_funcao_de_corda);      % FunÁ„o para calcular a distribuiÁ„o de corda e offset na envergadura da EH
+[y1eh,c1eh,x1eh] = Corda(chordeh,posbeh,Xeh,beh,offseteh_so_para_funcao_de_corda);      % Fun√ß√£o para calcular a distribui√ß√£o de corda e offset na envergadura da EH
 if isnan(c1eh)                                                                          % Teste da Malha de Cordas                  
      disp('eita')
      PrintParada(save,2,NaN,S,AR,NaN,NaN,NaN,NaN);
      return
 end
 
-x1eh_4 = x1eh + (c1eh/4);        % PosiÁ„o do CA de cada corda
+x1eh_4 = x1eh + (c1eh/4);        % Posi√ß√£o do CA de cada corda
 
 if creh == cteh                % EH retangular   
-    Seh    = beh*creh;         % ¡rea da EH
-    maceh  = creh;             % C·lculo da MAC para EH
-    Ymaceh = 0;                % PosiÁ„o na envergadura da MAC para EH
-    Xmaceh = 0.25*creh;        % C·lculo do offset do CA da MAC para EH
-else                           % EH n„o-retangular        
+    Seh    = beh*creh;         % √Årea da EH
+    maceh  = creh;             % C√°lculo da MAC para EH
+    Ymaceh = 0;                % Posi√ß√£o na envergadura da MAC para EH
+    Xmaceh = 0.25*creh;        % C√°lculo do offset do CA da MAC para EH
+else                           % EH n√£o-retangular        
     Seh          = 2*trapz(y1eh,c1eh);
     maceh        = 2/Seh*trapz(y1eh,c1eh.^2);
     Ymaceh       = 2/Seh*trapz(y1eh,c1eh.*y1eh);
     Xmaceh       = 2/Seh*trapz(y1eh,c1eh.*x1eh_4);
 end
 
-lb           = - Xmac + x_emp + Xmaceh;        % Dist‚ncia entre CAs da asa e das empenagens
-ARh          = beh^2/Seh;                      % Raz„o de aspecto da EH
+lb           = - Xmac + x_emp + Xmaceh;        % Dist√¢ncia entre CAs da asa e das empenagens
+ARh          = beh^2/Seh;                      % Raz√£o de aspecto da EH
 lambdaeh     = cteh/creh;                      % Afilamento da EH
 offset_maceh = Xmaceh - maceh/4;               % Offset da MAC
 
-%% Par‚metros de OtimizaÁ„o - EV
+%% Par√¢metros de Otimiza√ß√£o - EV
 
 bev      = 0.32;                % Envergadura na EV
 crev     = 0.2;                 % Corda da raiz na EV
@@ -165,16 +166,16 @@ if crev > creh
     lb = lb - (crev - creh);
 end
 
-%% C·lculos iniciais da EV
+%% C√°lculos iniciais da EV
 
-Sev      = crev*bev;        % ¡rea da EV
-ARev     = bev^2/Sev;       % Raz„o de aspecto da EV
+Sev      = crev*bev;        % √Årea da EV
+ARev     = bev^2/Sev;       % Raz√£o de aspecto da EV
 lambdaev = ctev/crev;       % Afilamento da EV
 macev = crev;               % MAC da EV
 
-%% SuperfÌcies de Comando
+%% Superf√≠cies de Comando
 % Aileron da asa
-ail = 0.15*b;                     % Dist‚ncia na semi-envergadura onde se inicia o aileron; È pra ser um absurdo propositalmente, pq sabemos que o AVL n„o sabe ver deflex„o
+ail = 0.15*b;                     % Dist√¢ncia na semi-envergadura onde se inicia o aileron; √© pra ser um absurdo propositalmente, pq sabemos que o AVL n√£o sabe ver deflex√£o
 
 if abs(ail - posb(2)) < 0.05
     if (ail - posb(2)) > 0
@@ -204,15 +205,15 @@ c_ail = interp1(y1,c1,ail);         % Corda da asa quando inicia o aileron
 
 ba             = b/2 - ail;         % Envergadura do aileron
 Xhinge_a       = 0.25;              % [%] da corda da hinge do aileron
-SgnDup_aileron = -1;                % Sinal de deflex„o para DUPLICATE do AVL (-1 para convencional, -2 para diferencial)
-%ail_sup        = 0;                % Aileron na asa superior (0=N„o; 1= Sim)
+SgnDup_aileron = -1;                % Sinal de deflex√£o para DUPLICATE do AVL (-1 para convencional, -2 para diferencial)
+%ail_sup        = 0;                % Aileron na asa superior (0=N√£o; 1= Sim)
 
 % Tab EH
 bah            = beh;               % Envergadura do tab da EH
 Xhinge_eh      = 0.20;              % [%] da corda da hinge da EH
 themp          = 0.12;              % Thickness da EH
 
-%% SeleÁ„o de perfil e CLmax de cada um 
+%% Sele√ß√£o de perfil e CLmax de cada um 
 
 switch perfilr
 %     case 1
@@ -311,20 +312,20 @@ switch perfilp
         CLmaxperfp = 2.1959;  
 end
 
-%% RestriÁıes da otimizaÁ„o
+%% Restri√ß√µes da otimiza√ß√£o
 
-ARlim       = 4;                    % Raz„o de aspecto limite
-ARhlim      = [2.0 6.0];            % Raz„o de aspecto limite da EH 
-ARvlim      = 1;                    % Raz„o de aspecto limite da EV
-grad_sublim = 3.5;                  % Gradiente de subida mÌnimo (%)
+ARlim       = 4;                    % Raz√£o de aspecto limite
+ARhlim      = [2.0 6.0];            % Raz√£o de aspecto limite da EH 
+ARvlim      = 1;                    % Raz√£o de aspecto limite da EV
+grad_sublim = 3.5;                  % Gradiente de subida m√≠nimo (%)
 Pcglim      = [0.30 0.42];          % Limites do CG [% da corda da raiz]
-de_lim      = [4.6 40];             % Limites de deflex„o do profundor
+de_lim      = [4.6 40];             % Limites de deflex√£o do profundor
 Vhlim       = [0.100 0.52];         % Limites de volume de cauda horizontal
 Vvlim       = [0.025 0.05];         % Limites de volume de cauda vertical
 
-%% RestriÁıes geomÈtricas de otimizaÁ„o
+%% Restri√ß√µes geom√©tricas de otimiza√ß√£o
 % if posb(2) >= b/2 
-%     disp('TransiÁ„o > envergadura')
+%     disp('Transi√ß√£o > envergadura')
 %     return        
 % end
 
@@ -362,17 +363,17 @@ end
 
 % if chord(1) - chord(2) > 0.35 || chord(2) - chord(3) > 0.30
 %     result = 0;
-%     disp('VariaÁ„o de corda muito grande')
+%     disp('Varia√ß√£o de corda muito grande')
 %     return
 % end
 
 % if abs(b/2 - posb(2)) <= 0.10 || abs(posb(2)) <= 0.20
-%     disp('SeÁıes muito pequenas')
+%     disp('Se√ß√µes muito pequenas')
 %     return
 % end
 if abs(posb(3)-posb(2)) <= 0.1 ||  abs(posb(2)-posb(1)) <= 0.1 || abs(ail-posb(2)) < 0.05
 	result = 0;
-	disp('SeÁ„o muito pequena')
+	disp('Se√ß√£o muito pequena')
     PrintParada(save,3,NaN,S,AR,NaN,NaN,NaN,NaN);
 	return
 end
@@ -384,7 +385,7 @@ end
 
 if died < 0
     if h_asa - abs((b/2)*tand(gama)) < 0.045
-    disp('Ponta de asa muito perto do ch„o')
+    disp('Ponta de asa muito perto do ch√£o')
     end
     if h_asa - abs((b/2)*tand(gama)) >= 0.045
         result = result-0.1;
@@ -393,7 +394,7 @@ if died < 0
 end
 
 if AR < ARlim            
-    disp('Raz„o de aspecto baixa')
+    disp('Raz√£o de aspecto baixa')
     PrintParada(save,4,NaN,S,AR,NaN,NaN,NaN,NaN);
     return
 end
@@ -403,7 +404,7 @@ if AR >= ARlim
 end
 
 if ARh < ARhlim(1) || ARh > ARhlim(2)             
-    disp('Raz„o de aspecto da EH')
+    disp('Raz√£o de aspecto da EH')
     PrintParada(save,5,NaN,S,AR,NaN,NaN,NaN,NaN);
     return
 end
@@ -413,7 +414,7 @@ if ARhlim(1) <= ARh <= ARhlim(2)
 end
 
 % if ARev < ARvlim             
-%     disp('Raz„o de aspecto da EV')
+%     disp('Raz√£o de aspecto da EV')
 %     PrintParada(save,7,NaN,S,AR,NaN,NaN,NaN,NaN);
 %     return
 % end
@@ -433,7 +434,7 @@ end
 % end
 % 
 % if (lambda1 || lambda2) < 0.5
-%     disp('Afilamento entre seÁıes muito grande')
+%     disp('Afilamento entre se√ß√µes muito grande')
 %     PrintParada(save,9,NaN,S,AR,NaN,NaN,NaN,NaN);
 %     return
 % end
@@ -444,7 +445,7 @@ end
 
 % if S < 0.80
 %    result = 0;
-%    disp('¡rea insatisfatÛria')
+%    disp('√Årea insatisfat√≥ria')
 %    return
 % end
 
@@ -461,8 +462,8 @@ end
 % Altura efetiva entre asa e EH
 hh = h_emp + thicknessr*chord(1); 
 
-if atand((h_asa + hh)/(x_emp - cr+creh)) < 18-iw        % PrÈ-verificaÁ„o de tail-strike
-    disp('PossÌvel tail-strike') 
+if atand((h_asa + hh)/(x_emp - cr+creh)) < 18-iw        % Pr√©-verifica√ß√£o de tail-strike
+    disp('Poss√≠vel tail-strike') 
     PrintParada(save,7,NaN,S,AR,NaN,NaN,NaN,NaN);
     return
 end
@@ -494,7 +495,7 @@ end
 %     fprintf('%.4f\n',result)
 % end
 
-%% CriaÁ„o das partes do avi„o em .avl e c·lculo analÌtico das derivadas longitudinais
+%% Cria√ß√£o das partes do avi√£o em .avl e c√°lculo anal√≠tico das derivadas longitudinais
 
 alpha1 = -4;        % menor alpha a ser analisado
 alpha2 = 12;        % maior alpha a ser analisado
@@ -502,14 +503,14 @@ alpha2 = 12;        % maior alpha a ser analisado
 [file_asa,file_eh] = convencionalAVLpartes(S,mac,b,posb,offset1,offset2,died,chord,perfilr,perfilm,perfilp,perfilh,beh,offseteh,creh,cteh,iw,ih,Xmac,Seh,maceh);
 [CL,CD,Cm]         = coefsAVL(alpha1,alpha2,0,file_asa,file_eh);
 
-ang = linspace(alpha1,alpha2,10);       % Range de ‚ngulos analisados
-n   = 0.97;                             % Queda de press„o din‚mica assumida
+ang = linspace(alpha1,alpha2,10);       % Range de √¢ngulos analisados
+n   = 0.97;                             % Queda de press√£o din√¢mica assumida
 
- for Pcg = Pcglim(2):-0.005:Pcglim(1)       % C·lculo da posiÁ„o de CG a partir dos limites dados
+ for Pcg = Pcglim(2):-0.005:Pcglim(1)       % C√°lculo da posi√ß√£o de CG a partir dos limites dados
 
-    Xcg     = Pcg*cr;                          % PosiÁ„o do CG a partir do BA [m]
-    Xcg_mac = (Xcg - offset_mac)/mac;          % PosiÁ„o do CG em porcentagem da mac
-    Vh_cg   = Vh-(Seh/S)*(Xcg_mac-0.25);       % Volume de cauda em relaÁ„o ao CG (Etkin)
+    Xcg     = Pcg*cr;                          % Posi√ß√£o do CG a partir do BA [m]
+    Xcg_mac = (Xcg - offset_mac)/mac;          % Posi√ß√£o do CG em porcentagem da mac
+    Vh_cg   = Vh-(Seh/S)*(Xcg_mac-0.25);       % Volume de cauda em rela√ß√£o ao CG (Etkin)
 
     % Momentos principais
     Cm_M_asa = Cm.w(ang);                       % Cm da asa
@@ -523,14 +524,14 @@ n   = 0.97;                             % Queda de press„o din‚mica assumida
     Cm_D_ev = nEV*0.012796*n*(Sev/S)*((h_emp+bev/2)-H_CG)/macev;        % Momento do CD da EV
 
     % Coeficientes totais
-    CLtot     = CL.w(ang)+n*(Seh/S)*CL.h(ang);                              % CL total do avi„o
-    CDtot     = CD.w(ang)+n*(Seh/S)*CD.h(ang)+nEV*0.012796*n*(Sev/S);       % CD total do avi„o
+    CLtot     = CL.w(ang)+n*(Seh/S)*CL.h(ang);                              % CL total do avi√£o
+    CDtot     = CD.w(ang)+n*(Seh/S)*CD.h(ang)+nEV*0.012796*n*(Sev/S);       % CD total do avi√£o
     Cmtot_asa = Cm_M_asa+Cm_L_asa+Cm_D_asa;                                 % Cm total da asa
     Cmtot_eh  = Cm_M_eh+Cm_L_eh+Cm_D_eh;                                    % Cm total da EH
-    Cmtot     = Cmtot_asa+Cmtot_eh+Cm_D_ev;                                 % Cm total do avi„o
+    Cmtot     = Cmtot_asa+Cmtot_eh+Cm_D_ev;                                 % Cm total do avi√£o
     
-    % Par‚metros principais
-    H      = (-diff(Cmtot))./diff(CLtot)*100;       % Margem est·tica em porcentagem
+    % Par√¢metros principais
+    H      = (-diff(Cmtot))./diff(CLtot)*100;       % Margem est√°tica em porcentagem
     h_calc = H(~isnan(H));
     Xn     = Xcg_mac+h_calc/100;                    % Ponto neutro
     Cma    = diff(Cmtot);                           % Derivada de Cm por alpha
@@ -538,7 +539,7 @@ n   = 0.97;                             % Queda de press„o din‚mica assumida
     Cmtotal_asa = @(alpha)interp1(ang,Cmtot_asa,alpha);        % Cm total da asa interpolado
     Cmtotal_eh  = @(alpha)interp1(ang,Cmtot_eh,alpha);         % Cm total da EH interpolado
     
-    % Verificar se o alfa de trimagem È positivo para alguma incidÍncia de EH vi·vel:
+    % Verificar se o alfa de trimagem √© positivo para alguma incid√™ncia de EH vi√°vel:
 %     for ih = 0:-1:-3
 %         Cm0 = Cmtotal_asa(-iw) + Cmtotal_eh(-iw+ih)+ Cm_D_ev;
 %         if Cm0 > 0
@@ -546,16 +547,16 @@ n   = 0.97;                             % Queda de press„o din‚mica assumida
 %         end
 %     end
     
-    % Verificar se a margem est·tica È positiva para todos os ‚ngulos e se Cm0 È positivo, para o loop
+    % Verificar se a margem est√°tica √© positiva para todos os √¢ngulos e se Cm0 √© positivo, para o loop
 %     if all(H > 0) && Cm0 > 0
 %         break
 %     end
  end
  
-%% VerificaÁıes de Estabilidade Longitudinal
+%% Verifica√ß√µes de Estabilidade Longitudinal
 
 if any(H < 0)
-        fprintf('Margem est·tica = %.4f\n',H(length(H)))
+        fprintf('Margem est√°tica = %.4f\n',H(length(H)))
         PrintParada(save,9,peso,Pcg,S,AR,NaN,NaN,NaN);
         return
 elseif all(H >= 0)
@@ -564,7 +565,7 @@ elseif all(H >= 0)
 end
 
 % if Cm0 <= 0
-%     fprintf('Cm0 n„o positivo\n')
+%     fprintf('Cm0 n√£o positivo\n')
 %     PrintParada(save,10,peso,Pcg,S,AR,NaN,NaN,NaN);
 %     return
 % else       % Cm0 > 0
@@ -572,21 +573,21 @@ end
 % end
 
 if any(Cma > 0)
-    disp('Longitudinalmente inst·vel')
+    disp('Longitudinalmente inst√°vel')
     PrintParada(save,11,peso,Pcg,S,AR,NaN,NaN,NaN);
     return
 elseif all(Cma <= 0)
     result = result-0.1;
 end
 
-%% CriaÁ„o do avi„o inteiro em .avl e c·lculo das derivadas l·tero-direcionais
+%% Cria√ß√£o do avi√£o inteiro em .avl e c√°lculo das derivadas l√°tero-direcionais
 [file_aviao] = convencionalAVL(S, mac, b, posb, offset, died, ail, c_ail, Pcg, chord, Xhinge_eh, Xhinge_a, SgnDup_aileron, perfilr, perfilm, perfilp, perfilh, perfilv, beh, offseteh, creh, cteh, bev, crev, ctev, offsetev, x_emp, h_emp, iw, ih, nEV, H_CG,1, h_asa);
 [~,Clb,~,Cnb,~,~,~,~,~,~,~,~,~,~,~,~,~,~] = derivadasAVL(4,4,mac,file_aviao);
 
-%% VerificaÁıes de Estabilidade L·tero-Direcional
+%% Verifica√ß√µes de Estabilidade L√°tero-Direcional
 
 if Cnb < 0 
-    disp('L·tero-direcionalmente inst·vel')
+    disp('L√°tero-direcionalmente inst√°vel')
     delete(file_aviao)
     PrintParada(save,12,peso,Pcg,S,AR,NaN,NaN,NaN);
     return
@@ -595,7 +596,7 @@ else       % Cnb >=0
 end
 
 if Clb > 0 
-    disp('L·tero-direcionalmente inst·vel')
+    disp('L√°tero-direcionalmente inst√°vel')
     delete(file_aviao)
     PrintParada(save,12,peso,Pcg,S,AR,NaN,NaN,NaN);
     return
@@ -609,7 +610,7 @@ end
 %fprintf('Tempo depois do AVL do efeito solo:%f\n',toc)
 
 %% Efeito solo
-% Par‚metros em cada posiÁ„o da asa
+% Par√¢metros em cada posi√ß√£o da asa
 [Yc,FsCL0,Area,~,~,cl,CDi_corrida,CL_corrida] = FSFT_dadosgroundAVL(-iw,0,ro,12,file_aviao_ground);
 de = 0;
 
@@ -617,12 +618,12 @@ cdv = NaN(1,length(Area));
 cdp = NaN(1,length(Area));
 
 for j=1:length(Area)
-    % AdiÁ„o da viscosidade da primeira seÁ„o
+    % Adi√ß√£o da viscosidade da primeira se√ß√£o
     if abs(Yc(j)) <= posb(2)        
         [cdvr, cdpr] = ViscosidadePolar(perfilr, cl(j));
         cdv(j) = cdvr;
         cdp(j) = cdpr;
-    % AdiÁ„o da viscosidade da 2™ seÁ„o
+    % Adi√ß√£o da viscosidade da 2¬™ se√ß√£o
     else
         prop = (posb(3) - abs(Yc(j)))/(posb(3)-posb(2));
         [cdv_1, cdp_1] = ViscosidadePolar(perfilr, cl(j));
@@ -634,8 +635,8 @@ for j=1:length(Area)
 end
 
 % Arrasto na corrida de pista
-CDvg = 4*sum(reshape(cdv,size(Area)).*Area)/S;              % Viscoso calculado atravÈs da an·lise de perfil no XFLR5
-CDpg = 4*sum(reshape(cdp,size(Area)).*Area)/S;              % Parasita calculado atravÈs da an·lise de perfil no XFLR5, dobrado por serem duas asas
+CDvg = 4*sum(reshape(cdv,size(Area)).*Area)/S;              % Viscoso calculado atrav√©s da an√°lise de perfil no XFLR5
+CDpg = 4*sum(reshape(cdp,size(Area)).*Area)/S;              % Parasita calculado atrav√©s da an√°lise de perfil no XFLR5, dobrado por serem duas asas
 Cdg = CDvg+CDpg;
 CD_corrida = CD_factor*(CDi_corrida + CDvg);                 % Total
 
@@ -652,18 +653,18 @@ if CL_corrida >= 0.4
     result = result-0.1;
 end
 
-%% Efeito solo analÌtico
+%% Efeito solo anal√≠tico
 % Asa
 f = 2*(h_asa)/b;
 ks = 46.87*f/(f^2+40.12*f+10.86);     % Curva zuadas do livro
 ARs = AR/ks;                          % AR corrigida devido ao efeito solo
 
 % EH
-fh = 2*(h_asa+h_emp)/b;                 % C·lculo do elemento f da formula descrita em ROSKAM, levando em conta a altura da fuselagem, a distancia da fuselagem ao solo e a distancia entre fuselagem e EH 
+fh = 2*(h_asa+h_emp)/b;                 % C√°lculo do elemento f da formula descrita em ROSKAM, levando em conta a altura da fuselagem, a distancia da fuselagem ao solo e a distancia entre fuselagem e EH 
 ksh = 46.87*fh/(fh^2+40.12*fh+10.86);   % Curva do livro
-ARsh = ARh/ksh;                         % Raz„o de aspecto modificada. Uma EH com ARs em cruzeiro È equivalente a uma com AR sofrendo o efeito solo.
+ARsh = ARh/ksh;                         % Raz√£o de aspecto modificada. Uma EH com ARs em cruzeiro √© equivalente a uma com AR sofrendo o efeito solo.
 
-% Derivadas aerodin‚micas (Clalfa)
+% Derivadas aerodin√¢micas (Clalfa)
 % Asa
 aws = 2*pi*ARs/(2+sqrt(ARs^2/0.98^2+4));    % Coeficiente angular de Cl(alpha) da asa, obtida de Raymer (eq. 12.6), considerando o efeito solo
 
@@ -674,13 +675,13 @@ ats = 2*pi*ARsh/(2+sqrt(ARsh^2/0.98^2+4));  % Coeficiente angular de Cl(alpha) d
 [CL0w,~,~,~] = CL0asaAVL(FsCL0);
 
 % Downwash
-Ka = 1/AR-1/(1+AR^1.7);             % Fator de correÁ„o da raz„o de aspecto
-Kl = (10-3*lambda)/7;               % Fator de correÁao do afilamento
-Kh = (1-h_emp/b)/((2*lb/b)^(1/3));  % Fator de correÁ„o EH
-deda = 4.44*(Ka*Kl*Kh)^(1.19);      % FÛrmula do gradiente de downwash
+Ka = 1/AR-1/(1+AR^1.7);             % Fator de corre√ß√£o da raz√£o de aspecto
+Kl = (10-3*lambda)/7;               % Fator de corre√ßao do afilamento
+Kh = (1-h_emp/b)/((2*lb/b)^(1/3));  % Fator de corre√ß√£o EH
+deda = 4.44*(Ka*Kl*Kh)^(1.19);      % F√≥rmula do gradiente de downwash
 epslon = deda*(deg2rad(iw) + CL0w/aws); 
 
-% CL corrida analÌtico da asa
+% CL corrida anal√≠tico da asa
 CL_corrida_asa = CL0w + aws*deg2rad(iw);
 CL_corrida_emp = 0 + ats*(deg2rad(ih) - epslon);
 CL_corrida2 = CL_corrida_asa + 0.9*(Seh/S)*CL_corrida_emp;
@@ -690,11 +691,11 @@ CDi_corrida_emp = CL_corrida_emp^2/(pi*ARsh*0.98);
 CDi_corrida2 = CDi_corrida_asa + 0.95*(Seh/S)*CDi_corrida_emp;
 
 fprintf('\nCL corrida avl = %.4f\n',CL_corrida)
-fprintf('CL corrida analÌtico = %.4f\n',CL_corrida2)
+fprintf('CL corrida anal√≠tico = %.4f\n',CL_corrida2)
 fprintf('CD corrida = %.4f\n',CD_corrida)
 fprintf('CDi corrida avl = %.4f\n',CDi_corrida)
-fprintf('CDi corrida analÌtico = %.4f\n',CDi_corrida2)
-% fprintf('CDp analÌtico = %.4f\n',CDp)
+fprintf('CDi corrida anal√≠tico = %.4f\n',CDi_corrida2)
+% fprintf('CDp anal√≠tico = %.4f\n',CDp)
 %fprintf('k = %.4f\n', k_prandtl)
 %fprintf('Tempo antes de iniciar inputs do CLmax:%f\n',toc)
 
@@ -710,7 +711,7 @@ parfor i = 0:50
     alfa=i/2;  %#ok<PFTUSE>
     ID1 = strcat('comandosAVL_',int2str(i),'.dat');
     ID2 = strcat('FsCLmax_',int2str(i),'.dat');
-    if exist(ID1,'file') == 2      % Evita arquivos j· existentes
+    if exist(ID1,'file') == 2      % Evita arquivos j√° existentes
         delete(ID1)
         delete(ID2)
     end
@@ -833,7 +834,7 @@ parfor i=0:50
 end
 %fprintf('Tempo antes do AVL do CLmax:%f\n',toc)
 
-%% VerificaÁ„o de CLmax e estol sem efeito solo
+%% Verifica√ß√£o de CLmax e estol sem efeito solo
 CLmaxasa = CLmaxrun;
 alfamax = alfa;
 
@@ -843,7 +844,7 @@ alpha = -2-iw:0.75:alfamax;
 if alfamax <= iw
     result = 0;
     PrintParada(save,15,peso,Pcg,S,AR,CD_corrida,CL_corrida,NaN);
-    disp('IncidÍncia estola')
+    disp('Incid√™ncia estola')
     return
 end
 
@@ -907,14 +908,14 @@ end
 
 
 for k = 1:length(alpha-1)  
-    %% ForÁas por Strip, Arrasto Induzido Polar e SustentaÁ„o para o alpha dado
+    %% For√ßas por Strip, Arrasto Induzido Polar e Sustenta√ß√£o para o alpha dado
     ID2 = strcat('Fsurface_polar_',int2str(k),'.dat');
     fileID2 = fopen(ID2,'r');
     clear data
     data = textscan(fileID2,'CLsurf  =   %f     CDsurf  =   %f','Headerlines',15);
     CDi_asa = data{2};
     
-    %% ForÁas por Strip
+    %% For√ßas por Strip
     formatSpec = '%f %f %f %f %f %f %f %f %f %f %f %f %f %[^\n\r]';
     data = textscan(fileID2,formatSpec,'Headerlines',4);
     Yc = data{:,2};
@@ -931,7 +932,7 @@ for k = 1:length(alpha-1)
     data = textscan(fileID2,'CLsurf  =   %f     CDsurf  =   %f','Headerlines',69);
     CDi_ev = data{2};
     
-    %% SustentaÁ„o para o alpha dado
+    %% Sustenta√ß√£o para o alpha dado
     ID3 = strcat('Ftotal_polar_',int2str(k),'.dat');
     fileID3 = fopen(ID3,'r');
     CL_polar = textscan(fileID3,'  CLtot = %f','Headerlines',23);
@@ -964,14 +965,14 @@ for k = 1:length(alpha-1)
     CL_polar_ext(i) = CL_polar;
     
     for j=1:length(Yc)   
-        % AdiÁ„o da viscosidade da primeira seÁ„o
+        % Adi√ß√£o da viscosidade da primeira se√ß√£o
         if abs(Yc(j)) <= posb(2)
             [cdvr, cdpr] = ViscosidadePolar(perfilr, cl(j));
 
             cdv(j) = cdvr;
             cdp(j) = cdpr;
             
-        % AdiÁ„o da viscosidade da segunda seÁ„o    
+        % Adi√ß√£o da viscosidade da segunda se√ß√£o    
         else
             prop = (posb(3) - abs(Yc(j)))/(posb(3)-posb(2));
             [cdv_m1, cdp_m1] = ViscosidadePolar(perfilr, cl(j));
@@ -982,23 +983,23 @@ for k = 1:length(alpha-1)
         end
     end
     
-    CDv(i) = 2*sum(reshape(cdv,size(Areac)).*Areac)/S;           % Viscoso calculado atravÈs da an·lise de perfil no XFLR5
-    CDp(i) = 2*sum(reshape(cdp,size(Areac)).*Areac)/S;           % Parasita calculado atravÈs da an·lise de perfil no XFLR5
+    CDv(i) = 2*sum(reshape(cdv,size(Areac)).*Areac)/S;           % Viscoso calculado atrav√©s da an√°lise de perfil no XFLR5
+    CDp(i) = 2*sum(reshape(cdp,size(Areac)).*Areac)/S;           % Parasita calculado atrav√©s da an√°lise de perfil no XFLR5
     Cd(i) = CDv(i) + CDp(i);
     CD_polar_ext(i) = CD_factor*(CDi_polar_ext(i) + CDv(i));             % Total
 
-    % CL do ‚ngulo analisado
+    % CL do √¢ngulo analisado
     CL_polar_ext(i) = 1.0*CL_polar_ext(i);
     
     
-    % CL_polar È o cl max DO AVI√O INTEIRO (asa+eh+ev+fuselagem...) 
+    % CL_polar √© o cl max DO AVI√ÉO INTEIRO (asa+eh+ev+fuselagem...) 
     % com valor que sai do avl, mas limitado pelo de estol dado pelo xf 
-    % (definido no for pelo length(alpha-1), saÌdo de arquivo Ft do avl
+    % (definido no for pelo length(alpha-1), sa√≠do de arquivo Ft do avl
     
     i = i + 1;
 end
 
-% An·lise de desempenho
+% An√°lise de desempenho
 CLmax = max(CL_polar_ext);
 % monoCLmax = max(monoCL_polar);
 % CLCDmax = max(CL_polar./CD_polar);
@@ -1007,7 +1008,7 @@ CLmax = max(CL_polar_ext);
 
 
 %% Corrida de pista 
-nT = 1;             % N˙mero de traÁıes sendo analisadas
+nT = 1;             % N√∫mero de tra√ß√µes sendo analisadas
 Vs = NaN(1,nT);    
 MTOWt = NaN(1,nT);
 grad_sub = NaN(1,nT);
@@ -1018,13 +1019,13 @@ for iTracao = 1:nT
     
     tow = 5;                % Chute inicial do TOW
     mi = 0.0875;            % Coeficiente de atrito
-    total_pista = 90;       % Dist‚ncia segura para rotate
+    total_pista = 90;       % Dist√¢ncia segura para rotate
     inc = 0.05;              % Tamanho de cada segmento a ser analisado
     T = total_pista/inc;
-    inc_massa = 0.01;       % Incremento na massa a cada iteraÁ„o
+    inc_massa = 0.01;       % Incremento na massa a cada itera√ß√£o
 
     
-     % PrÈ alocando
+     % Pr√© alocando
     q = NaN(1,T);
     E = NaN(1,T);
     D = NaN(1,T);
@@ -1037,25 +1038,25 @@ for iTracao = 1:nT
     v = NaN(1,T+1);
     
     v(1) = 0;                                             % Velocidade inicial
-    aux1 = 0;                                             % Vari·vel auxiliar para quando chegar no limite do MTOW
+    aux1 = 0;                                             % Vari√°vel auxiliar para quando chegar no limite do MTOW
     
-    % C·lculo da corrida
+    % C√°lculo da corrida
     while aux1 == 0
         for i = 1:T
             
-            q(i) = abs(0.5*ro*v(i)^2);                                     % Press„o dinamica
-            V_dec = 1.1*sqrt((2*9.81*tow)/(ro*S*CLmax));                   % Velocidade (com correÁao de 5%) de decolagem
-            E(i) = abs(polyval(tracao, v(i)));                             % TraÁ„o
-            D(i) = q(i)*CD_corrida*S;                                      % C·lculo do arrasto na decolagem
-            L(i) = q(i)*CL_corrida*S;                                      % C·lculo da sustentaÁ„o
+            q(i) = abs(0.5*ro*v(i)^2);                                     % Press√£o dinamica
+            V_dec = 1.1*sqrt((2*9.81*tow)/(ro*S*CLmax));                   % Velocidade (com corre√ßao de 5%) de decolagem
+            E(i) = abs(polyval(tracao, v(i)));                             % Tra√ß√£o
+            D(i) = q(i)*CD_corrida*S;                                      % C√°lculo do arrasto na decolagem
+            L(i) = q(i)*CL_corrida*S;                                      % C√°lculo da sustenta√ß√£o
             
-            Sum_Fy(i) = L(i)-tow*9.81*cosd(declive);                        % SomatÛria das forÁas em y
-            Fat(i) = abs(mi*(Sum_Fy(i)));                                   % C·lculo da forÁa de atrito
+            Sum_Fy(i) = L(i)-tow*9.81*cosd(declive);                        % Somat√≥ria das for√ßas em y
+            Fat(i) = abs(mi*(Sum_Fy(i)));                                   % C√°lculo da for√ßa de atrito
             
-            %Sum_Fx(i) = E(i)-D(i)-Fat(i)-9.81*tow*sind(declive);            % SomatÛria das forÁas em x
-            Sum_Fx(i) = E(i)-D(i)-Fat(i);                                   % SomatÛria das forÁas em x
+            %Sum_Fx(i) = E(i)-D(i)-Fat(i)-9.81*tow*sind(declive);            % Somat√≥ria das for√ßas em x
+            Sum_Fx(i) = E(i)-D(i)-Fat(i);                                   % Somat√≥ria das for√ßas em x
             
-            % VerificaÁ„o se o avi„o decolou com o peso escolhido
+            % Verifica√ß√£o se o avi√£o decolou com o peso escolhido
             if v(i) > V_dec && i*inc < total_pista
                 fator_pista = i*inc/total_pista;
                 inc_massa_dois = max([inc_massa/fator_pista  inc_massa]);
@@ -1064,7 +1065,7 @@ for iTracao = 1:nT
                 break
             end
             
-            % Caso o avi„o n„o decole
+            % Caso o avi√£o n√£o decole
             if v(i) > V_dec || i*inc >= total_pista
                 tow = tow - inc_massa;
                 aux1 = 1;
@@ -1076,49 +1077,49 @@ for iTracao = 1:nT
     end
     %v_stall = v(end);
     
-    % tow a partir daqui significa o MTOW do avi„o <<
+    % tow a partir daqui significa o MTOW do avi√£o <<
     Vs(iTracao) = sqrt((2*9.81*tow)/(ro*S*CLmax));
     
-    % Curva de potÍncia disponÌvel
+    % Curva de pot√™ncia dispon√≠vel
     inc_vel = 0.5;
     v_pot = Vs(iTracao):inc_vel:2.3*Vs(iTracao);            % Envelope de velocidades
     
-    % PrÈ alocando
+    % Pr√© alocando
     p_disp = NaN(1,length(v_pot));
     p_req = NaN(1,length(v_pot));
     grad_de_subida = NaN(1,length(v_pot));
     
     for i = 1:size(v_pot,2)
-        p_disp(i) = v_pot(i)*(polyval(tracao, v_pot(i)));   % C·lculo da potÍncia disponÌvel do motor, levando em conta a traÁ„o do avi„o e a velocidade do avi„o.
+        p_disp(i) = v_pot(i)*(polyval(tracao, v_pot(i)));   % C√°lculo da pot√™ncia dispon√≠vel do motor, levando em conta a tra√ß√£o do avi√£o e a velocidade do avi√£o.
     end
     
-    % Curva de potÍncia requerida
+    % Curva de pot√™ncia requerida
     for i = 1:size(v_pot,2)
-        CLplane = (2*9.81*tow)/(ro*S*v_pot(i)^2);          % CL total necess·rio para a carga na velocidade v_pot(i)
+        CLplane = (2*9.81*tow)/(ro*S*v_pot(i)^2);          % CL total necess√°rio para a carga na velocidade v_pot(i)
         
         CDplane = interp1(CL_polar_ext,CD_polar_ext,CLplane);       % Arrasto interpolado da polar
-        Drag = 0.5*ro*(v_pot(i)^2).*CDplane*S;             % ForÁa de arrasto parasita da aeronave
+        Drag = 0.5*ro*(v_pot(i)^2).*CDplane*S;             % For√ßa de arrasto parasita da aeronave
         
-        p_req(i) = v_pot(i)*Drag;                           % PotÍncia requerida do motor, levando em conta a velocidade e o arrasto parasita.
+        p_req(i) = v_pot(i)*Drag;                           % Pot√™ncia requerida do motor, levando em conta a velocidade e o arrasto parasita.
     end
     
     for i = 1:size(v_pot,2)
         grad_de_subida(i) = 100*(p_disp(i) - p_req(i))/((tow*9.81)*v_pot(i)); % Gradiente de subida para cada velocidade [%]
         
-        % Gradiente de subida logo apÛs a decolagem
+        % Gradiente de subida logo ap√≥s a decolagem
         
         if v_pot(i) > 1.1*Vs(iTracao)-inc_vel && v_pot(i) < 1.1*Vs(iTracao)+inc_vel
             grad_sub(iTracao) = grad_de_subida(i);            
         end
     end
     
-MTOWt(iTracao) = tow;   % Vetor de MTOW para cada traÁ„o
+MTOWt(iTracao) = tow;   % Vetor de MTOW para cada tra√ß√£o
 
 end
 %fprintf('Tempo depois do calculo da corrida de pista:%f\n',toc)
 
 
-%% VerificaÁ„o gradiente de subida 
+%% Verifica√ß√£o gradiente de subida 
 
 if grad_sub <= 0
     disp('Gradiente de subida negativo fodase')
@@ -1126,7 +1127,7 @@ if grad_sub <= 0
     PrintParada(save,17,peso,Pcg,S,AR,CD_corrida,CL_corrida,max(MTOWt));
     return
 elseif grad_sub < grad_sublim    
-    disp('Gradiente de subida lament·vel')
+    disp('Gradiente de subida lament√°vel')
     delete(file_aviao)
     PrintParada(save,18,peso,Pcg,S,AR,CD_corrida,CL_corrida,max(MTOWt));
     return
@@ -1137,24 +1138,24 @@ CL_polardec = CL_polar(j);
 alpha_dec = alpha(j);
 tow = max(MTOWt);
 
-%% Deflex„o de profundor
+%% Deflex√£o de profundor
 alpha = 0:2:alfamax;
 de = NaN(1,length(alpha));
 i = 1;
 
-for k = 1:length(alpha)        % An·lise da deflex„o do profundor pelo avl
+for k = 1:length(alpha)        % An√°lise da deflex√£o do profundor pelo avl
     [de(i)] = deflexaoAVL(alpha(k),0,file_aviao);    
     i = i + 1;
 end
 
 if max(abs(de)) > de_lim(1) && max(abs(de)) < de_lim(2)
-    fprintf('M·xima deflex„o de profundor: %.4f\n',max(abs(de)))
+    fprintf('M√°xima deflex√£o de profundor: %.4f\n',max(abs(de)))
     result = result - 0.1;
 end
 
 if max(abs(de)) < de_lim(1) || max(abs(de)) > de_lim(2)
     PrintParada(save,19,peso,Pcg,S,AR,CD_corrida,CL_corrida,max(MTOWt))
-    disp('Deflex„o de profundor')
+    disp('Deflex√£o de profundor')
     return
 end
 
@@ -1164,26 +1165,26 @@ cargapaga = max(MTOWt) - peso;
 
 result = -cargapaga;
 
-fprintf('CL decolagem = %.4f\n',CL_polardec) %CL max q um ponto especÌfico da asa gera
+fprintf('CL decolagem = %.4f\n',CL_polardec) %CL max q um ponto espec√≠fico da asa gera
 fprintf('Alfa decolagem = %.4f\n',alpha_dec)
 fprintf('CL max = %.4f\n',CLmax)
 fprintf('CL max asa = %.4f\n',CLmaxasa)
 fprintf('AR = %.4f\n',AR)
-fprintf('¡rea = %.4f\n',S)
+fprintf('√Årea = %.4f\n',S)
 fprintf('Gradiente de subida = %.4f\n',grad_sub(j))
 fprintf('Vs = %.4f\n',Vs(j))
-fprintf('Margem est·tica = %.4f\n',H(length(H)))
-fprintf('PosiÁao do CG [raiz] = %.4f\n',Pcg)
-fprintf('PosiÁao do CG [MAC] = %.4f\n',Xcg_mac)
-fprintf('Tempo de uma iteraÁ„o completa = %.4f\n',toc)
+fprintf('Margem est√°tica = %.4f\n',H(length(H)))
+fprintf('Posi√ßao do CG [raiz] = %.4f\n',Pcg)
+fprintf('Posi√ßao do CG [MAC] = %.4f\n',Xcg_mac)
+fprintf('Tempo de uma itera√ß√£o completa = %.4f\n',toc)
 fprintf('Peso = %.4f <<<\n\n',peso)
 fprintf('MTOW = %.4f <<<\n\n',max(MTOWt))
 fprintf('Carga Paga = %.4f <<<\n\n', cargapaga)
 
 fileIDBOM = fopen('backup.txt','a');
 fprintf(fileIDBOM,'\n%s\n\nx = [ %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f ]',datetime,save(1),save(2),save(3),save(4),save(5),save(6),save(7),save(8),save(9),save(10),save(11));
-fprintf(fileIDBOM,'\n\nMTOW = %.4f <<<\n\nPeso = %.4f\n\nCarga Paga = %.4f\n\nPosiÁao do CG [raiz] = %.4f',max(MTOWt),peso ,cargapaga ,Pcg);
-fprintf(fileIDBOM,'\n\n¡rea: %.4f | AR: %.4f | CDcorrida: %.4f | CLcorrida: %.4f | Parada: %f',S,AR,CD_corrida,CL_corrida,0);
+fprintf(fileIDBOM,'\n\nMTOW = %.4f <<<\n\nPeso = %.4f\n\nCarga Paga = %.4f\n\nPosi√ßao do CG [raiz] = %.4f',max(MTOWt),peso ,cargapaga ,Pcg);
+fprintf(fileIDBOM,'\n\n√Årea: %.4f | AR: %.4f | CDcorrida: %.4f | CLcorrida: %.4f | Parada: %f',S,AR,CD_corrida,CL_corrida,0);
 % if estol_ponta_baixo == 1
 %         fprintf(fileIDBOM,'\n\nCuidado: estol na ponta da asa inferior');
 % end
